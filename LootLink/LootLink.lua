@@ -195,6 +195,7 @@ LL.SORT_BLOCK = "Block";
 LL.SORT_SLOTS = "Slots";
 LL.SORT_LEVEL = "Level";
 LL.SORT_SKILL = "Skill Level";
+LL.SORT_PAWN = "Pawn Score";
 
 --------------------------------------------------------------------------------------------------
 -- Local LootLink variables
@@ -501,7 +502,8 @@ local LOOTLINK_DROPDOWN_LIST = {
 	{ name = LL.SORT_DPS, sortType = "DPS" },
 	{ name = LL.SORT_SPEED, sortType = "speed" },
 	{ name = LL.SORT_SLOTS, sortType = "slots" },
-	{ name = LL.SORT_SKILL, sortType = "skill" }
+	{ name = LL.SORT_SKILL, sortType = "skill" },
+	{ name = LL.SORT_PAWN, sortType = "pawn" },
 };
 
 local LLS_RARITY_LIST = {
@@ -2129,6 +2131,35 @@ local function LootLink_LevelComparison(elem1, elem2)
 	return LootLink_GenericComparison(elem1, elem2, v1, v2);
 end
 
+local function LootLink_Pawn_GetScaleName()
+	for ScaleName, Scale in pairs(PawnCommon and PawnCommon.Scales or {}) do
+		if Scale.PerCharacterOptions[PawnPlayerFullName].Visible then
+			return ScaleName
+		end
+	end
+end
+
+local function LootLink_PawnComparison(elem1, elem2)
+	local v1, v2;
+	
+	local scaleName = LootLink_Pawn_GetScaleName()
+	if scaleName then
+		if( ItemLinks[elem1] and ItemLinks[elem1].i ) then
+			local itemLink = LootLink_GetHyperlink(elem1)
+			local itemData = itemLink and PawnGetItemData(itemLink)
+			v1 = itemData and PawnGetSingleValueFromItem(itemData, scaleName)
+		end
+		if( ItemLinks[elem2] and ItemLinks[elem2].i ) then
+			local itemLink = LootLink_GetHyperlink(elem2)
+			local itemData = itemLink and PawnGetItemData(itemLink)
+			v2 = itemData and PawnGetSingleValueFromItem(itemData, scaleName)
+		end
+	end
+	
+	-- Reverse sorting for higher numbers at the top
+	return LootLink_GenericComparison(elem2, elem1, v2, v1);
+end
+
 local function LootLink_StrengthComparison(elem1, elem2)
 	local v1, v2;
 	
@@ -2391,6 +2422,16 @@ end
 
 local function LootLink_Sort()
 	local sortType = LOOTLINK_DROPDOWN_LIST[sdd:GetSelectedID(LootLinkFrameDropDown) or 1].sortType;
+	
+	if( sortType == "pawn" ) then
+		-- Don't sort by Pawn if too many results
+		if not DisplayIndices or DisplayIndices.onePastEnd > 100 then
+			print("Too many results to sort by Pawn Score. Lower your query to under 100 results.")
+			sortType = "name"
+		else
+			return table.sort(DisplayIndices, LootLink_PawnComparison);
+		end
+	end
 	if( sortType == "name" ) then
 		table.sort(DisplayIndices, LootLink_NameComparison);
 	elseif( sortType == "rarity" ) then
