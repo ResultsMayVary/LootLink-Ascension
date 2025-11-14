@@ -174,6 +174,8 @@ LL.DODGE_RATING = "Dodge Rating";
 LL.PARRY_RATING = "Parry Rating";
 LL.BLOCK_RATING = "Block Rating";
 LL.BLOCK_VALUE = "Block Value";
+LL.PVP_POWER = "PvP Power";
+LL.PVE_POWER = "PvE Power";
 
 -- For sorting
 LL.SORT_NAME = "Name";
@@ -246,6 +248,8 @@ LL.STAT_DODGE_RATING = 16;
 LL.STAT_PARRY_RATING = 17;
 LL.STAT_BLOCK_RATING = 18;
 LL.STAT_BLOCK_VALUE = 19;
+LL.STAT_PVP_POWER = 20;
+LL.STAT_PVE_POWER = 21;
 
 LL.BINDS_DOES_NOT_BIND = 0;
 LL.BINDS_EQUIP = 1;
@@ -543,6 +547,8 @@ local LLS_STAT_LIST = {
 	{ name = LL.PARRY_RATING, value = "pr" },
 	{ name = LL.BLOCK_RATING, value = "br" },
 	{ name = LL.BLOCK_VALUE, value = "bv" },
+	{ name = LL.PVP_POWER, value = "pvp" },
+	{ name = LL.PVE_POWER, value = "pve" },
 };
 
 local LLS_TYPE_LIST = {
@@ -671,7 +677,7 @@ local LOOTLINK_SELF_SCAN_BUFFER_TIME = 5;
 --------------------------------------------------------------------------------------------------
 
 LOOTLINK_VERSION = 400;	-- version 4.00
-LOOTLINK_CURRENT_DATA_VERSION = 201; -- version 2.01
+LOOTLINK_CURRENT_DATA_VERSION = 202; -- version 2.02
 
 LOOTLINK_ITEM_HEIGHT = 16;
 LOOTLINK_ITEMS_SHOWN = 23;
@@ -1123,86 +1129,94 @@ local function LootLink_BuildSearchData(llid, value)
 	if (itemType == "Armor" or itemType == "Weapon") then
 		itemStats = GetItemStats(itemLink);
 		if itemStats then
-		local val1 = itemStats["ITEM_MOD_STRENGTH_SHORT"];
-		if (val1) then
-			value.d = value.d.."sg"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_AGILITY_SHORT"];
-		if (val1) then
-			value.d = value.d.."ag"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_STAMINA_SHORT"];
-		if (val1) then
-			value.d = value.d.."st"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_INTELLECT_SHORT"];
-		if (val1) then
-			value.d = value.d.."in"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_SPIRIT_SHORT"];
-		if (val1) then
-			value.d = value.d.."si"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_ATTACK_POWER_SHORT"];
-		if (val1) then
-			value.d = value.d.."ap"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_EXPERTISE_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."er"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_ARMOR_PENETRATION_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."am"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_HIT_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."ht"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_CRIT_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."cr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_HASTE_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."hr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_SPELL_POWER_SHORT"];
-		if (val1) then
-			value.d = value.d.."sr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_POWER_REGEN0_SHORT"];
-		if (val1) then
-			value.d = value.d.."mr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_SPELL_PENETRATION_SHORT"];
-		if (val1) then
-			value.d = value.d.."sn"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_RESILIENCE_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."rr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_DEFENSE_SKILL_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."dr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_DODGE_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."do"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_PARRY_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."pr"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_BLOCK_RATING_SHORT"];
-		if (val1) then
-			value.d = value.d.."br"..val1.."·";
-		end
-		local val1 = itemStats["ITEM_MOD_BLOCK_VALUE_SHORT"];
-		if (val1) then
-			value.d = value.d.."bv"..val1.."·";
-		end	
+			local val1 = itemStats["ITEM_MOD_STRENGTH_SHORT"];
+			if (val1) then
+				value.d = value.d.."sg"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_AGILITY_SHORT"];
+			if (val1) then
+				value.d = value.d.."ag"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_STAMINA_SHORT"];
+			if (val1) then
+				value.d = value.d.."st"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_INTELLECT_SHORT"];
+			if (val1) then
+				value.d = value.d.."in"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_SPIRIT_SHORT"];
+			if (val1) then
+				value.d = value.d.."si"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_ATTACK_POWER_SHORT"];
+			if (val1) then
+				value.d = value.d.."ap"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_EXPERTISE_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."er"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_ARMOR_PENETRATION_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."am"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_HIT_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."ht"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_CRIT_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."cr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_HASTE_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."hr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_SPELL_POWER_SHORT"];
+			if (val1) then
+				value.d = value.d.."sr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_POWER_REGEN0_SHORT"];
+			if (val1) then
+				value.d = value.d.."mr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_SPELL_PENETRATION_SHORT"];
+			if (val1) then
+				value.d = value.d.."sn"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_RESILIENCE_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."rr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_DEFENSE_SKILL_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."dr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_DODGE_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."do"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_PARRY_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."pr"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_BLOCK_RATING_SHORT"];
+			if (val1) then
+				value.d = value.d.."br"..val1.."·";
+			end
+			local val1 = itemStats["ITEM_MOD_BLOCK_VALUE_SHORT"];
+			if (val1) then
+				value.d = value.d.."bv"..val1.."·";
+			end
+			local val1 = itemStats["PVP_POWER"];
+			if (val1) then
+				value.d = value.d.."pvp"..val1.."·";
+			end
+			local val1 = itemStats["PVE_POWER"];
+			if (val1) then
+				value.d = value.d.."pve"..val1.."·";
+			end
 		end
 	end
 	
