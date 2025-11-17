@@ -214,7 +214,7 @@ local LootLinkPanelLayout = {
 local sdd = LibStub:GetLibrary("SimpleDropDown-1.0")
 
 LL.STATE_NAME = 0;
-LL.STATE_HEROIC = 1;
+LL.STATE_TIER = 1;
 LL.STATE_BOUND = 2;
 LL.STATE_UNIQUE = 3;
 LL.STATE_LOCATION = 4;
@@ -1260,11 +1260,30 @@ local function LootLink_BuildSearchData(llid, value)
 		loop = 1;
 		while( loop ) do
 			if( state == LL.STATE_NAME ) then
-				state = LL.STATE_HEROIC;
+				state = LL.STATE_TIER;
 				loop = nil;
-			elseif( state == LL.STATE_HEROIC ) then
+			elseif( state == LL.STATE_TIER ) then
+				-- TODO Raid vs Dungeon support?
 				if( string.find(left, "Heroic") ) then
-					value.d = value.d.."he1·"
+					value.d = value.d.."tr1·"
+					loop = nil;
+				end
+				if( string.find(left, "Ascended") ) then
+					value.d = value.d.."tr2·"
+					loop = nil;
+				end
+				if( string.find(left, "Mythic") ) then
+					iStart, iEnd, val1 = string.find(left, "Mythic (.+)");
+					if( val1 and tonumber(val1) ) then
+						value.d = value.d.."my"..tonumber(val1).."·"
+					else
+						value.d = value.d.."my0·"
+					end
+					value.d = value.d.."tr3·"
+					loop = nil;
+				end
+				if( string.find(left, "Bloodforged") ) then
+					value.d = value.d.."bf1·"
 					loop = nil;
 				end
 				state = LL.STATE_BOUND;
@@ -3575,6 +3594,9 @@ function LootLinkItemButton_OnClick(self, button)
 		if( IsShiftKeyDown() and IsControlKeyDown() ) then
 			ItemLinks[self.llid] = nil;
 			LootLink_Refresh();
+		elseif( IsAltKeyDown() ) then
+			LootLink_BuildSearchData(self.llid, ItemLinks[self.llid])
+			DevTools_Dump(ItemLinks[self.llid]);
 		end
 	end
 end
@@ -4670,11 +4692,26 @@ function LootLink_SetHyperlinkFromId(tooltip, llid, link)
 					-- Name, in rarity color
 					tooltip:SetText("|c"..value.c..LootLink_GetName(llid).."|r");
 					
-					-- Heroic
-					local heroic = LootLink_SearchData(value, "he");
-					if( heroic ) then
-						tooltip:AddLine("Heroic", 0, 1, 0, 1, 1);
-						lines = lines + 1;
+					-- Tier level
+					local tier = LootLink_SearchData(value, "tr");
+					if( tier ) then
+						if (tier == 1) then
+							tooltip:AddLine("Heroic", 0, 1, 0, 1, 1);
+							lines = lines + 1;
+						end
+						if (tier == 2) then
+							tooltip:AddLine("Ascended", 0, 1, 0, 1, 1);
+							lines = lines + 1;
+						end
+						if (tier > 10) then
+							local mythic = tier-10
+							if (mythic > 0) then
+								tooltip:AddLine("Mythic "..mythic, 0, 1, 0, 1, 1);
+							else
+								tooltip:AddLine("Mythic", 0, 1, 0, 1, 1);
+							end
+							lines = lines + 1;
+						end
 					end
 					
 					-- Binds on equip, binds on pickup
