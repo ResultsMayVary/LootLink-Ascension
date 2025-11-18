@@ -649,7 +649,7 @@ local LLS_LOCATION_LIST = {
 	{ name = "Trinket", },
 	{ name = "Two-Hand", },
 	{ name = "Waist", },
-	{ name = "Wand", },
+	-- { name = "Wand", },
 	{ name = "Wrist", },
 };
 
@@ -1263,16 +1263,31 @@ local function LootLink_BuildSearchData(llid, value)
 				state = LL.STATE_TIER;
 				loop = nil;
 			elseif( state == LL.STATE_TIER ) then
-				-- TODO Raid vs Dungeon support?
 				if( string.find(left, "Heroic") ) then
 					value.d = value.d.."tr1·"
 					loop = nil;
-				end
-				if( string.find(left, "Ascended") ) then
+				elseif( string.find(left, "Ascended") ) then
 					value.d = value.d.."tr2·"
 					loop = nil;
-				end
-				if( string.find(left, "Mythic") ) then
+				elseif( string.find(left, "Worldforged") ) then
+					value.d = value.d.."tr3·"
+					loop = nil;
+				elseif( string.find(left, "Superior") ) then
+					value.d = value.d.."tr4·"
+					loop = nil;
+				elseif( string.find(left, "Refined") ) then
+					value.d = value.d.."tr5·"
+					loop = nil;
+				elseif( string.find(left, "Prestigious") ) then
+					value.d = value.d.."tr6·"
+					loop = nil;
+				elseif( string.find(left, "Frozen Reach") ) then
+					value.d = value.d.."tr7·"
+					loop = nil;
+				elseif( string.find(left, "Dungeon: ") ) then
+					value.d = value.d.."tr8·"
+					loop = nil;
+				elseif(string.find(left, "Mythic") ) then
 					iStart, iEnd, val1 = string.find(left, "Mythic (.+)");
 					if( val1 and tonumber(val1) ) then
 						value.d = value.d.."my"..tonumber(val1).."·"
