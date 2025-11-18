@@ -1263,7 +1263,13 @@ local function LootLink_BuildSearchData(llid, value)
 				state = LL.STATE_TIER;
 				loop = nil;
 			elseif( state == LL.STATE_TIER ) then
-				if( string.find(left, "Heroic") ) then
+				if( string.find(left, "Bloodforged") ) then
+					value.d = value.d.."bf1·"
+					loop = nil;
+				elseif( string.find(left, "Heroic Bloodforged") ) then
+					value.d = value.d.."bf2·"
+					loop = nil;
+				elseif( string.find(left, "Heroic") ) then
 					value.d = value.d.."tr1·"
 					loop = nil;
 				elseif( string.find(left, "Ascended") ) then
@@ -1295,10 +1301,6 @@ local function LootLink_BuildSearchData(llid, value)
 						value.d = value.d.."my0·"
 					end
 					value.d = value.d.."tr3·"
-					loop = nil;
-				end
-				if( string.find(left, "Bloodforged") ) then
-					value.d = value.d.."bf1·"
 					loop = nil;
 				end
 				state = LL.STATE_BOUND;
@@ -4707,26 +4709,50 @@ function LootLink_SetHyperlinkFromId(tooltip, llid, link)
 					-- Name, in rarity color
 					tooltip:SetText("|c"..value.c..LootLink_GetName(llid).."|r");
 					
+					
+					-- Bloodforged
+					local bloodforged = LootLink_SearchData(value, "br");
+					if( bloodforged ) then
+						if( bloodforged == 1) then
+							tooltip:AddLine("Bloodforged", 1, 0, 0, 1, 1);
+						elseif ( bloodforged == 2) then
+							tooltip:AddLine("Heroic Bloodforged", 1, 0, 0, 1, 1);
+						end
+						lines = lines + 1;
+					end
+					
 					-- Tier level
 					local tier = LootLink_SearchData(value, "tr");
 					if( tier ) then
 						if (tier == 1) then
 							tooltip:AddLine("Heroic", 0, 1, 0, 1, 1);
-							lines = lines + 1;
-						end
-						if (tier == 2) then
+						elseif (tier == 2) then
 							tooltip:AddLine("Ascended", 0, 1, 0, 1, 1);
-							lines = lines + 1;
+						elseif (tier == 3) then
+							tooltip:AddLine("Worldforged", 0, 1, 0, 1, 1);
+						elseif (tier == 4) then
+							tooltip:AddLine("Superior", 0, 1, 0, 1, 1);
+						elseif (tier == 5) then
+							tooltip:AddLine("Refined", 0, 1, 0, 1, 1);
+						elseif (tier == 6) then
+							tooltip:AddLine("Prestigious", 1, 1, 0, 1, 1);
+						elseif (tier == 7) then
+							tooltip:AddLine("Frozen Reach", 0, 0, 1, 1, 1);
+						elseif (tier == 8) then
+							tooltip:AddLine("Dungeon", 0, 1, 0, 1, 1);
 						end
-						if (tier > 10) then
-							local mythic = tier-10
-							if (mythic > 0) then
-								tooltip:AddLine("Mythic "..mythic, 0, 1, 0, 1, 1);
-							else
-								tooltip:AddLine("Mythic", 0, 1, 0, 1, 1);
-							end
-							lines = lines + 1;
+						lines = lines + 1;
+					end
+
+					-- Mythic level
+					local mythic = LootLink_SearchData(value, "my");
+					if (mythic) then
+						if (mythic > 0) then
+							tooltip:AddLine("Mythic "..mythic, 0, 1, 0, 1, 1);
+						else
+							tooltip:AddLine("Mythic", 0, 1, 0, 1, 1);
 						end
+						lines = lines + 1;
 					end
 					
 					-- Binds on equip, binds on pickup
