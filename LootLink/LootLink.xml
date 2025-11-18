@@ -1043,6 +1043,31 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 					<Anchor point="TOPLEFT" relativeTo="LLS_MinimumLevelEditBox" relativePoint="TOPRIGHT" x="16" y="0" />
 				</Anchors>
 			</EditBox>
+			<CheckButton name="LLS_BloodforgedCheckButton" inherits="ChatConfigCheckButtonTemplate">
+				<Size>
+					<AbsDimension x="32" y="32"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="LLS_MaximumLevelEditBox" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="18" y="7"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString inherits="GameFontNormalSmall" text="LLS_BLOODFORGED">
+							<Anchors>
+								<Anchor point="LEFT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="-2" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</CheckButton>
 			<EditBox name="LLS_MinimumiLevelEditBox" letters="3" numeric="true" inherits="LLS_EditBoxTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="LLS_iLevelRangeLabel" relativePoint="TOPRIGHT">

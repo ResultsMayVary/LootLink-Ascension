@@ -69,6 +69,7 @@ LLS_BINDS = "Binds:";
 LLS_UNIQUE = "Is Unique?";
 LLS_CACHED = "Not Cached?";
 LLS_USABLE = "Usable?";
+LLS_BLOODFORGED = "Bloodforged?";
 LLS_LOCATION = "Equip location:";
 LLS_MINIMUM_LEVEL = "Minimum level:";
 LLS_MAXIMUM_LEVEL = "Maximum level:";
@@ -1635,7 +1636,7 @@ local function LootLink_MatchesSearch(llid, value, ud)
 			if( GetItemInfo(LootLink_GetItemId(llid)) ) then
 				return nil;
 			end
-		end	
+		end
 
 		if( sp.usable ) then
 			local _type = LootLink_SearchData(value, "ty");
@@ -1661,6 +1662,13 @@ local function LootLink_MatchesSearch(llid, value, ud)
 			-- Check level requirement
 			if( level and level > ud.level ) then
 				return nil;
+			end
+		end
+
+		if( sp.bloodforged ) then
+			local bloodforged = LootLink_SearchData(value, "bf");
+			if not bloodforged then
+				return nil
 			end
 		end
 		
@@ -4000,6 +4008,8 @@ function LootLinkSearch_LoadValues()
 	
 	_G["LLS_UsableCheckButton"]:SetChecked(sp and sp.usable);
 	
+	_G["LLS_BloodforgedCheckButton"]:SetChecked(sp and sp.bloodforged);
+	
 	field = _G["LLS_MinimumLevelEditBox"];
 	field:SetText(sp and sp.minLevel or "");
 	tinsert(fields, field);
@@ -4215,6 +4225,13 @@ function LootLinkSearch_SaveValues()
 	value = field:GetChecked();
 	if( value ) then
 		sp.usable = value;
+		interesting = 1;
+	end
+	
+	field = _G["LLS_BloodforgedCheckButton"];
+	value = field:GetChecked();
+	if( value ) then
+		sp.bloodforged = value;
 		interesting = 1;
 	end
 	
