@@ -228,7 +228,8 @@ LL.STATE_GLYPH = 10;
 LL.STATE_CONTAINER = 11;
 LL.STATE_MATCHES = 12;
 LL.STATE_REQUIRES = 13;
-LL.STATE_FINISH = 14;
+LL.STATE_ITEM_LEVEL = 14;
+LL.STATE_FINISH = 15;
 
 LL.STAT_STRENGTH = 0;
 LL.STAT_AGILITY = 1;
@@ -691,11 +692,9 @@ LOOTLINK_ITEMS_SHOWN = 23;
 
 function LootLinkOptions_Init()
     --Initialise all the check boxes on the options frame
---	LootLinkAuction:SetChecked(
 	LootLinkAutocomplete:SetChecked(LootLinkState.AutoComplete);
     LootLinkLight:SetChecked(LootLinkState.LightMode);
---	print(LootLinkState.AutoComplete);
---	print(LootLinkState.LightMode);
+    LootLinkPawnCount:SetValue(LootLinkState.PawnCount);
 end
 
 function LootLink_AutoComplete_Toggle()
@@ -713,6 +712,11 @@ function LootLink_LightMode_Toggle()
     else
         StaticPopup_Show ("LOOTLINK_LIGHTTEXT_CONFIRM")
     end
+    LootLinkOptions_Init();
+end
+
+function LootLink_PawnCount_Set(newValue)
+	LootLinkState.PawnCount = newValue;
     LootLinkOptions_Init();
 end
 
@@ -1097,7 +1101,7 @@ local function LootLink_GetLink(llid)
 	return nil;
 end
 
-local function LootLink_BuildSearchData(llid, value)
+local function LootLink_BuildSearchData(llid, value, debug)
 	local itemLink;
 	local state = LL.STATE_NAME;
 	local loop;
@@ -1124,9 +1128,6 @@ local function LootLink_BuildSearchData(llid, value)
 	end
 	
 	local _, _, _, iLevel = GetItemInfo(itemLink);
-	if( iLevel ) then
-		value.d = value.d.."il"..iLevel.."·";
-	end
 	
 	local _, _, _, _, _, itemType = GetItemInfo(itemLink);
 	if (itemType == "Armor" or itemType == "Weapon") then
@@ -1241,6 +1242,9 @@ local function LootLink_BuildSearchData(llid, value)
 			right = field:GetText();
 		else
 			right = nil;
+		end
+		if debug then
+			print(index, state, left, right)
 		end
 		
 		if( left ) then
@@ -1440,8 +1444,16 @@ local function LootLink_BuildSearchData(llid, value)
 							end
 						end
 					end
+					loop = nil;
 				end
-				state = LL.STATE_MATCHES;
+				state = LL.STATE_ITEM_LEVEL;
+			elseif( state == LL.STATE_ITEM_LEVEL ) then
+				iStart, iEnd, val1 = string.find(left, "Item Level (%d+)");
+				if( val1 ) then
+					iLevel = val1;
+					state = LL.STATE_FINISH;
+				end
+				state = LL.STATE_REQUIRES;
 				loop = nil;
 			elseif( state == LL.STATE_FINISH ) then
 				loop = nil;
@@ -1449,6 +1461,9 @@ local function LootLink_BuildSearchData(llid, value)
 		end
 	end
 
+	if( iLevel ) then
+		value.d = value.d.."il"..iLevel.."·";
+	end
 	if( _type ) then
 		value.d = value.d.."ty".._type.."·";
 	end
@@ -1990,7 +2005,8 @@ local function LootLink_iLevelComparison(elem1, elem2)
 		v2 = LootLink_SearchData(ItemLinks[elem2], "il");
 	end
 	
-	return LootLink_GenericComparison(elem1, elem2, v1, v2);
+	-- Descending order
+	return LootLink_GenericComparison(elem2, elem1, v2, v1);
 end
 
 local function LootLink_BindsComparison(elem1, elem2)
@@ -2469,8 +2485,9 @@ local function LootLink_Sort()
 	
 	if( sortType == "pawn" ) then
 		-- Don't sort by Pawn if too many results
-		if not DisplayIndices or DisplayIndices.onePastEnd > 100 then
-			print("Too many results to sort by Pawn Score. Lower your query to under 100 results.")
+		local maxPawnCount = LootLinkState.PawnCount or 100
+		if not DisplayIndices or DisplayIndices.onePastEnd > (LootLinkState.PawnCount or 100) then
+			print("Too many results to sort by Pawn Score. Lower your query to under "..maxPawnCount.." results.")
 			sortType = "name"
 		else
 			return table.sort(DisplayIndices, LootLink_PawnComparison);
@@ -3620,7 +3637,7 @@ function LootLinkItemButton_OnClick(self, button)
 			ItemLinks[self.llid] = nil;
 			LootLink_Refresh();
 		elseif( IsAltKeyDown() ) then
-			LootLink_BuildSearchData(self.llid, ItemLinks[self.llid])
+			LootLink_BuildSearchData(self.llid, ItemLinks[self.llid], true)
 			DevTools_Dump(ItemLinks[self.llid]);
 		end
 	end

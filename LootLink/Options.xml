@@ -26,7 +26,7 @@
 				</FontString>				 
 			</Layer>
 		</Layers>
-	<Frames>		
+	<Frames>
 		<CheckButton name="LootLinkAutocomplete" inherits="OptionsCheckButtonTemplate">
 			<Anchors>
 				<Anchor point="TOPLEFT" relativeTo="LootLink_OptionsTitle" relativePoint="BOTTOMLEFT">
@@ -61,7 +61,31 @@
 					LootLink_LightMode_Toggle();
 				</OnClick>
 			</Scripts>
-		</CheckButton>	
+		</CheckButton>
+		<Slider name="LootLinkPawnCount" inherits="OptionsSliderTemplate" minValue="100" maxValue="500" valueStep="1">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="LootLinkLight" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-20"/>
+						</Offset>
+				</Anchor>
+			</Anchors>
+			<Scripts>
+				<OnLoad>
+					self.alwaysShowTooltip = true
+					self.tooltipText = "The number of results to enable sorting by pawn score."
+					_G[self:GetName().."Text"]:SetText("Pawn count")
+
+					local sliderMin, sliderMax = self:GetMinMaxValues()
+					_G[self:GetName().."Low"]:SetText(tostring(sliderMin));
+					_G[self:GetName().."High"]:SetText(tostring(sliderMax));
+				</OnLoad>
+				<OnValueChanged>
+					LootLink_PawnCount_Set(value);
+					_G[self:GetName().."Value"]:SetText(value)
+				</OnValueChanged>
+			</Scripts>
+		</Slider>	
 		<Button name="LootLinkReset" inherits="UIPanelButtonTemplate" text="Reset Data">
 			<Size>
 				<AbsDimension x="120" y="22"/>
